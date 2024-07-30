@@ -33,14 +33,10 @@ public class Member {
   private String username;
   @NotNull
   @Column(length = 20)
-//  @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
-//      message = "비밀번호는 최소 8자 이상이어야 하며, 영문자, 숫자, 특수문자(@$!%*#?&)를 각각 1개 이상 포함해야 합니다.")
   private String password;
 
   @NotNull
   @Column(length = 30)
-//  @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$",
-//      message = "올바른 이메일 형식이 아닙니다.")
   private String email;
 
   @CreatedDate
