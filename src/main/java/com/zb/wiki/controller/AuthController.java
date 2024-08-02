@@ -1,8 +1,12 @@
 package com.zb.wiki.controller;
 
+import com.zb.wiki.dto.GlobalResponse;
+import com.zb.wiki.dto.SignIn;
 import com.zb.wiki.dto.SignUp;
 import com.zb.wiki.service.MemberService;
 import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,7 @@ public class AuthController {
 
   /**
    * 회원가입 API
+   *
    * @param request 사용자 아이디, 비밀번호, 이메일
    * @return 회원가입 성공메시지
    */
@@ -32,5 +37,22 @@ public class AuthController {
     return ResponseEntity.ok().body("Sign up successful");
   }
 
+  @PostMapping("/signin")
+  public ResponseEntity<?> signIn(@RequestBody @Valid SignIn.Request request) {
+    log.info("signIn request : {}", request);
+    memberService.signIn(request.getUsername(), request.getPassword());
 
+    // xxx jwt 구현 로직
+    //
+
+    return ResponseEntity.ok().body(
+        GlobalResponse.<String>builder()
+            .status("success")
+            .message("로그인 성공")
+            .data(new ArrayList<>(Arrays.asList(
+                "jwtToken"
+            )))
+            .build()
+    );
+  }
 }

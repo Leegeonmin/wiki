@@ -36,4 +36,16 @@ public class MemberService {
         .email(email)
         .build());
   }
+
+  /**
+   * 로그인 로직
+   * 사용자의 아이디와 비밀번호로 중복검사
+   * @param username 사용자 아이디
+   * @param password 사용자 비밀번호
+   */
+  public void signIn(String username, String password) {
+    memberRepository.findByUsernameAndPassword(username,password).orElseThrow(
+        () ->  new GlobalException(GlobalError.USER_NOT_FOUND)
+    );
+  }
 }
