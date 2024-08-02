@@ -1,0 +1,63 @@
+package com.zb.wiki.controller;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zb.wiki.service.MemberService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(controllers = AuthController.class)
+class AuthControllerTest {
+
+  @MockBean
+  private MemberService memberService;
+  @Autowired
+  private MockMvc mockMvc;
+
+
+  @Test
+  @DisplayName("회원가입 성공")
+  void signUp() throws Exception {
+    //given
+    Mockito.doNothing().when(memberService).signUp(anyString(), anyString(), anyString());
+
+    //when
+    //then
+    mockMvc.perform(post("/auth/signup")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\" : \"testuser\", "
+                + "\"password\":\"q1w2e3r4!\", "
+                + "\"email\" : \"lkm5611@naver.com\"}")
+        ).andExpect(status().isOk())
+        .andExpect(content().string("Sign up successful"));
+  }
+
+  @Test
+  @DisplayName("로그인 성공")
+
+  void signIn() throws Exception {
+    Mockito.doNothing().when(memberService).signIn(anyString(), anyString());
+
+    mockMvc.perform(post("/auth/signin")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{ "
+                + "\"username\" : \"lee\", "
+                + "\"password\" :  \"q1w2e3r4!\" "
+                + "}")
+        ).andExpect(status().isOk())
+        .andExpect(jsonPath("$.data[0]").value("jwtToken"))
+        .andDo(print());
+  }
+}

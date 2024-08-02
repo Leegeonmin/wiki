@@ -6,7 +6,7 @@ import com.zb.wiki.dto.SignUp;
 import com.zb.wiki.service.MemberService;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,7 @@ public class AuthController {
         GlobalResponse.<String>builder()
             .status("success")
             .message("로그인 성공")
-            .data(new ArrayList<>(Arrays.asList(
+            .data(new ArrayList<>(List.of(
                 "jwtToken"
             )))
             .build()
