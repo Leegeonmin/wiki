@@ -3,11 +3,9 @@ package com.zb.wiki.controller;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zb.wiki.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,12 +39,11 @@ class AuthControllerTest {
                 + "\"password\":\"q1w2e3r4!\", "
                 + "\"email\" : \"lkm5611@naver.com\"}")
         ).andExpect(status().isOk())
-        .andExpect(content().string("Sign up successful"));
+        .andExpect(jsonPath("$.message").value("회원가입 성공"));
   }
 
   @Test
   @DisplayName("로그인 성공")
-
   void signIn() throws Exception {
     Mockito.doNothing().when(memberService).signIn(anyString(), anyString());
 

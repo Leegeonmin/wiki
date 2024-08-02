@@ -12,8 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class GlobalResponse<T> {
-  private String status;
+  private String status; //success , fail
   private String message;
   private ArrayList<T> data;
-  private String fieldError;
+  private String invalidField;
+  private String errorMessage;
 }

@@ -31,14 +31,19 @@ public class AuthController {
    * @return 회원가입 성공메시지
    */
   @PostMapping("/signup")
-  public ResponseEntity<String> signUp(@RequestBody @Valid SignUp.Request request) {
+  public ResponseEntity<GlobalResponse<String>> signUp(@RequestBody @Valid SignUp.Request request) {
     log.info("signUp request : {}", request);
     memberService.signUp(request.getUsername(), request.getPassword(), request.getEmail());
-    return ResponseEntity.ok().body("Sign up successful");
+    return ResponseEntity.ok().body(
+        GlobalResponse.<String>builder()
+            .status("success")
+            .message("회원가입 성공")
+            .build()
+    );
   }
 
   @PostMapping("/signin")
-  public ResponseEntity<?> signIn(@RequestBody @Valid SignIn.Request request) {
+  public ResponseEntity<GlobalResponse<String>> signIn(@RequestBody @Valid SignIn.Request request) {
     log.info("signIn request : {}", request);
     memberService.signIn(request.getUsername(), request.getPassword());
 
