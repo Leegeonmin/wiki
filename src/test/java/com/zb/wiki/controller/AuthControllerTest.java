@@ -5,22 +5,28 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.BDDMockito.given;
 
+import com.zb.wiki.security.JwtUtil;
 import com.zb.wiki.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = AuthController.class)
+@AutoConfigureMockMvc(addFilters = false )
 class AuthControllerTest {
 
   @MockBean
   private MemberService memberService;
+  @MockBean
+  private JwtUtil jwtUtil;
   @Autowired
   private MockMvc mockMvc;
 
@@ -45,8 +51,12 @@ class AuthControllerTest {
   @Test
   @DisplayName("로그인 성공")
   void signIn() throws Exception {
+    //given
     Mockito.doNothing().when(memberService).signIn(anyString(), anyString());
+    given(jwtUtil.generateToken(anyString()))
+        .willReturn("testaccesstoken");
 
+    //when
     mockMvc.perform(post("/auth/signin")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{ "
@@ -54,7 +64,7 @@ class AuthControllerTest {
                 + "\"password\" :  \"q1w2e3r4!\" "
                 + "}")
         ).andExpect(status().isOk())
-        .andExpect(jsonPath("$.data[0]").value("jwtToken"))
+        .andExpect(jsonPath("$.data.accessToken").value("testaccesstoken"))
         .andDo(print());
   }
 }
