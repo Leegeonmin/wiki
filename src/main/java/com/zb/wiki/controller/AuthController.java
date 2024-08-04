@@ -7,8 +7,6 @@ import com.zb.wiki.dto.SignUp;
 import com.zb.wiki.security.JwtUtil;
 import com.zb.wiki.service.MemberService;
 import jakarta.validation.Valid;
-import java.util.Arrays;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
