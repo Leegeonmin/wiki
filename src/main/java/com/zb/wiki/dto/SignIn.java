@@ -2,6 +2,7 @@ package com.zb.wiki.dto;
 
 
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,7 +17,8 @@ public class SignIn {
 
   @Getter
   @Builder
+  @AllArgsConstructor
   public static class Response{
-    private String token;
+    private String accessToken;
   }
 }

@@ -2,11 +2,13 @@ package com.zb.wiki.controller;
 
 import com.zb.wiki.dto.GlobalResponse;
 import com.zb.wiki.dto.SignIn;
+import com.zb.wiki.dto.SignIn.Response;
 import com.zb.wiki.dto.SignUp;
+import com.zb.wiki.security.JwtUtil;
 import com.zb.wiki.service.MemberService;
 import jakarta.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final MemberService memberService;
-
+  private final JwtUtil jwtUtil;
 
   /**
    * 회원가입 API
@@ -43,20 +45,18 @@ public class AuthController {
   }
 
   @PostMapping("/signin")
-  public ResponseEntity<GlobalResponse<String>> signIn(@RequestBody @Valid SignIn.Request request) {
+  public ResponseEntity<GlobalResponse<Response>> signIn(
+      @RequestBody @Valid SignIn.Request request) {
     log.info("signIn request : {}", request);
     memberService.signIn(request.getUsername(), request.getPassword());
 
-    // xxx jwt 구현 로직
-    //
+    String jwt = jwtUtil.generateToken(request.getUsername());
 
     return ResponseEntity.ok().body(
-        GlobalResponse.<String>builder()
+        GlobalResponse.<SignIn.Response>builder()
             .status("success")
             .message("로그인 성공")
-            .data(new ArrayList<>(List.of(
-                "jwtToken"
-            )))
+            .data(Response.builder().accessToken(jwt).build())
             .build()
     );
   }
