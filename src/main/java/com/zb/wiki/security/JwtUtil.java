@@ -1,15 +1,21 @@
 package com.zb.wiki.security;
 
+import com.zb.wiki.service.MemberService;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
 
+  private final MemberService memberService;
   @Value("${spring.jwt.secret-key}")
   private String secretKey;
 
@@ -37,5 +43,10 @@ public class JwtUtil {
   public String getUsernameFromToken(String token) {
     return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token)
         .getBody().getSubject();
+  }
+
+  public UsernamePasswordAuthenticationToken getAuthentication(String token){
+    UserDetails userDetails = memberService.loadUserByUsername(getUsernameFromToken(token));
+    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
 }
