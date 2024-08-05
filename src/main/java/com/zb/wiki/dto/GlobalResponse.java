@@ -16,5 +16,5 @@ public class GlobalResponse<T> {
   private String message;
   private T data;
   private String invalidField;
-  private String errorMessage;
+  private String inputErrorDetail;
 }
