@@ -1,6 +1,6 @@
 package com.zb.wiki.security;
 
-import com.zb.wiki.service.MemberService;
+import com.zb.wiki.service.CustomUserDetailService;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtProvider {
 
-  private final MemberService memberService;
+  private final CustomUserDetailService memberService;
   @Value("${spring.jwt.secret-key}")
   private String secretKey;
 
