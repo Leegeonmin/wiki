@@ -30,8 +30,7 @@ public class MemberService implements UserDetailsService {
    */
   @Transactional(readOnly = false)
   public void signUp(String username, String password, String email) {
-    boolean isMemberExisted = memberRepository.existsByUsername(username);
-    if(isMemberExisted) throw new GlobalException(GlobalError.USERNAME_DUPLICATED);
+    if(memberRepository.existsByUsername(username)) throw new GlobalException(GlobalError.USERNAME_DUPLICATED);
 
     memberRepository.save(Member.builder()
         .username(username)

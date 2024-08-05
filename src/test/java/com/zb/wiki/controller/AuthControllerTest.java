@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.mockito.BDDMockito.given;
 
-import com.zb.wiki.security.JwtUtil;
+import com.zb.wiki.security.JwtProvider;
 import com.zb.wiki.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class AuthControllerTest {
   @MockBean
   private MemberService memberService;
   @MockBean
-  private JwtUtil jwtUtil;
+  private JwtProvider jwtProvider;
   @Autowired
   private MockMvc mockMvc;
 
@@ -53,7 +53,7 @@ class AuthControllerTest {
   void signIn() throws Exception {
     //given
     Mockito.doNothing().when(memberService).signIn(anyString(), anyString());
-    given(jwtUtil.generateToken(anyString()))
+    given(jwtProvider.generateToken(anyString()))
         .willReturn("testaccesstoken");
 
     //when

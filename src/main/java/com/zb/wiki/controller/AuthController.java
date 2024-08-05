@@ -4,7 +4,7 @@ import com.zb.wiki.dto.GlobalResponse;
 import com.zb.wiki.dto.SignIn;
 import com.zb.wiki.dto.SignIn.Response;
 import com.zb.wiki.dto.SignUp;
-import com.zb.wiki.security.JwtUtil;
+import com.zb.wiki.security.JwtProvider;
 import com.zb.wiki.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final MemberService memberService;
-  private final JwtUtil jwtUtil;
+  private final JwtProvider jwtProvider;
 
   /**
    * 회원가입 API
@@ -48,7 +48,7 @@ public class AuthController {
     log.info("signIn request : {}", request);
     memberService.signIn(request.getUsername(), request.getPassword());
 
-    String jwt = jwtUtil.generateToken(request.getUsername());
+    String jwt = jwtProvider.generateToken(request.getUsername());
 
     return ResponseEntity.ok().body(
         GlobalResponse.<SignIn.Response>builder()

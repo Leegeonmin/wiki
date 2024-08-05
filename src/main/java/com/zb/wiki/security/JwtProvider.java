@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtProvider {
 
   private final MemberService memberService;
   @Value("${spring.jwt.secret-key}")
@@ -31,7 +31,7 @@ public class JwtUtil {
         .compact();
   }
 
-  public boolean validateToken(String token) {
+  public boolean isValidToken(String token) {
     try {
       Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
       return true;

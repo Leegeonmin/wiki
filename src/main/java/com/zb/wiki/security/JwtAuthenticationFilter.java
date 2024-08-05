@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtUtil jwtUtil;
+  private final JwtProvider jwtProvider;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -27,12 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
       jwt = authorizationHeader.substring(7);
-      username = jwtUtil.getUsernameFromToken(jwt);
+      username = jwtProvider.getUsernameFromToken(jwt);
     }
 
     if (username != null && SecurityContextHolder.getContext().getAuthentication() == null
-        && jwtUtil.validateToken(jwt)) {
-      Authentication authentication = jwtUtil.getAuthentication(jwt);
+        && jwtProvider.isValidToken(jwt)) {
+      Authentication authentication = jwtProvider.getAuthentication(jwt);
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
     }
