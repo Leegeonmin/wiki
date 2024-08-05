@@ -1,6 +1,7 @@
 package com.zb.wiki.exception;
 
 import com.zb.wiki.dto.GlobalResponse;
+import com.zb.wiki.type.GlobalResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(
         GlobalResponse.builder()
-            .status("fail")
+            .status(GlobalResponseStatus.FAIL)
             .message(e.getErrorMessage())
             .build()
     );
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(GlobalError.BAD_REQUEST.getHttpStatus()).body(
         GlobalResponse.builder()
-            .status("fail")
+            .status(GlobalResponseStatus.FAIL)
             .message(GlobalError.BAD_REQUEST.getDescription())
             .invalidField(error.getField())
             .errorMessage(error.getDefaultMessage())
@@ -52,7 +53,7 @@ public class GlobalExceptionHandler {
     log.error("DataIntegrityViolationException occurred", e);
     return ResponseEntity.status(GlobalError.BAD_REQUEST.getHttpStatus()).body(
         GlobalResponse.builder()
-            .status("fail")
+            .status(GlobalResponseStatus.FAIL)
             .message(GlobalError.BAD_REQUEST.getDescription())
             .build()
     );
@@ -64,7 +65,7 @@ public class GlobalExceptionHandler {
     log.error("Unhandled Exception is occurred", e);
     return ResponseEntity.status(GlobalError.BAD_REQUEST.getHttpStatus()).body(
         GlobalResponse.builder()
-            .status("fail")
+            .status(GlobalResponseStatus.FAIL)
             .message(GlobalError.BAD_REQUEST.getDescription())
             .build()
     );
