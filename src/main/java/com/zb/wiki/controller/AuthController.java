@@ -6,14 +6,18 @@ import com.zb.wiki.dto.SignIn.Response;
 import com.zb.wiki.dto.SignUp;
 import com.zb.wiki.security.JwtProvider;
 import com.zb.wiki.service.MemberService;
+import com.zb.wiki.service.Oauth2Service;
 import com.zb.wiki.type.GlobalResponseStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,6 +28,7 @@ public class AuthController {
 
   private final MemberService memberService;
   private final JwtProvider jwtProvider;
+  private final Oauth2Service oauth2Service;
 
   /**
    * 회원가입 API
@@ -58,5 +63,13 @@ public class AuthController {
             .data(Response.builder().accessToken(jwt).build())
             .build()
     );
+  }
+
+
+
+  @GetMapping("/oauth2/kakao")
+  public ResponseEntity<GlobalResponse<?>> kakaoOauth2(@RequestParam(name = "code") String code){
+    oauth2Service.processAuthorizationCode(code);
+    return ResponseEntity.ok().body(GlobalResponse.builder().data(code).build());
   }
 }
