@@ -1,6 +1,7 @@
 package com.zb.wiki.controller;
 
 import com.zb.wiki.dto.GlobalResponse;
+import com.zb.wiki.dto.KakaoOauth2;
 import com.zb.wiki.dto.SignIn;
 import com.zb.wiki.dto.SignIn.Response;
 import com.zb.wiki.dto.SignUp;
@@ -67,8 +68,15 @@ public class AuthController {
 
 
   @GetMapping("/oauth2/kakao")
-  public ResponseEntity<GlobalResponse<?>> kakaoOauth2(@RequestParam(name = "code") String code){
-    oauth2Service.loginOrRegisterKakaoUser(code);
-    return ResponseEntity.ok().body(GlobalResponse.builder().data(code).build());
+  public ResponseEntity<GlobalResponse<KakaoOauth2.Response>> kakaoOauth2(@RequestParam(name = "code") String code){
+    String username = oauth2Service.loginOrRegisterKakaoUser(code);
+    String jwt = jwtProvider.generateToken(username);
+    return ResponseEntity.ok().body(
+        GlobalResponse.<KakaoOauth2.Response>builder()
+            .status(GlobalResponseStatus.SUCCESS)
+            .message("로그인 성공")
+            .data(KakaoOauth2.Response.builder().accessToken(jwt).build())
+            .build()
+    );
   }
 }
