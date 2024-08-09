@@ -1,6 +1,7 @@
 package com.zb.wiki.service;
 
 import com.zb.wiki.dto.KakaoTokenResponse;
+import com.zb.wiki.dto.KakaoUserInfo;
 import com.zb.wiki.exception.GlobalError;
 import com.zb.wiki.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +33,12 @@ public class Oauth2Service {
   @Value("${spring.oauth2.kakao.token-uri}")
   private String kakaoTokenUri;
 
-  public String processAuthorizationCode(String code) {
-    String kakaoAccessToken = requestAccessToken(code);
-    System.out.println(kakaoAccessToken);
+  @Value("${spring.oauth2.kakao.userinfo-uri}")
+  private String kakaoUserInfoUri;
 
+  public String loginOrRegisterKakaoUser(String code) {
+    String kakaoAccessToken = requestAccessToken(code);
+    KakaoUserInfo userInfo = getUserInfo(kakaoAccessToken);
     return null;
   }
 
@@ -46,7 +49,7 @@ public class Oauth2Service {
     requestBody.add("redirect_uri", kakaoRedirect_uri);
     requestBody.add("code", code);
 
-    try{
+    try {
       KakaoTokenResponse response = restClient.post()
           .uri(kakaoTokenUri)
           .headers(httpHeaders ->
@@ -56,17 +59,31 @@ public class Oauth2Service {
           .retrieve()
           .body(KakaoTokenResponse.class);
 
-      if(response == null){
+      if (response == null) {
         throw new GlobalException(GlobalError.USER_NOT_FOUND);
       }
       return response.getAccess_token();
 
-    }catch (HttpClientErrorException e){
+    } catch (HttpClientErrorException e) {
       log.error(e.getResponseBodyAsString());
       throw new GlobalException(GlobalError.RESOURCE_SERVER_ERROR);
 
     }
+  }
 
+  private KakaoUserInfo getUserInfo(String accessToken) {
+    KakaoUserInfo userInfo = restClient.get()
+        .uri(kakaoUserInfoUri)
+        .headers(headers -> {
+          headers.setBearerAuth(accessToken);
+        })
+        .retrieve()
+        .body(KakaoUserInfo.class);
 
+    if (userInfo != null) {
+      return userInfo;
+    } else {
+      throw new RuntimeException("Failed to get user info from Kakao");
+    }
   }
 }
