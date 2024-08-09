@@ -48,6 +48,11 @@ public class AuthController {
     );
   }
 
+  /**
+   * 로그인 API
+   * @param request 사용자 아이디, 비밀번호
+   * @return JWT
+   */
   @PostMapping("/signin")
   public ResponseEntity<GlobalResponse<Response>> signIn(
       @RequestBody @Valid SignIn.Request request) {
@@ -66,7 +71,11 @@ public class AuthController {
   }
 
 
-
+  /**
+   * 사용자 kakao 인증 로그인 후 카카오 리소스 서버에서 오는 callback api
+   * @param code 카카오 리소스 서버에서 발급해 주는 코드
+   * @return JWT
+   */
   @GetMapping("/oauth2/kakao")
   public ResponseEntity<GlobalResponse<KakaoOauth2.Response>> kakaoOauth2(@RequestParam(name = "code") String code){
     String username = oauth2Service.loginOrRegisterKakaoUser(code);
