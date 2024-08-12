@@ -1,9 +1,13 @@
 package com.zb.wiki.domain;
 
 
+import com.zb.wiki.dto.KakaoUserInfo;
+import com.zb.wiki.type.Oauth2ProviderType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,9 +35,16 @@ public class Member{
   @NotNull
   @Column(length = 20)
   private String username;
-  @NotNull
-  @Column(length = 20)
+
+  @Column(length = 20, nullable = true)
   private String password;
+
+  @Column(nullable = true)
+  @Enumerated(EnumType.STRING)
+  private Oauth2ProviderType oauthProvider;  // "KAKAO", "GOOGLE" 등
+
+  @Column(nullable = true)
+  private Long oauthId;  // OAuth 제공자의 고유 ID
 
   @NotNull
   @Column(length = 30)
@@ -44,4 +55,12 @@ public class Member{
   @LastModifiedDate
   private LocalDateTime modifiedDate;
 
+  public void updateExistingUser(KakaoUserInfo kakaoUserInfo){
+    this.username = kakaoUserInfo.getKakaoAccount().getProfile().getNickname();
+  }
+
+  public void linkKakaoUserInfo(KakaoUserInfo kakaoUserInfo){
+    this.oauthProvider = Oauth2ProviderType.KAKAO;
+    this.oauthId = kakaoUserInfo.getId();
+  }
 }

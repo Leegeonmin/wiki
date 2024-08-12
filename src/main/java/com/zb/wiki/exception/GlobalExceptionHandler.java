@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
             .status(GlobalResponseStatus.FAIL)
             .message(GlobalError.BAD_REQUEST.getDescription())
             .invalidField(error.getField())
-            .errorMessage(error.getDefaultMessage())
+            .inputErrorDetail(error.getDefaultMessage())
             .build()
     );
   }

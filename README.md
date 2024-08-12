@@ -45,8 +45,7 @@
 
 <br/><br/><br/>
 # ERD
-![img_3.png](img_3.png)
-
+![img_4.png](img_4.png)
 # 프로젝트 구조
 ![img_1.png](img_1.png)
 
