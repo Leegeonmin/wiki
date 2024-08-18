@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 public class CustomUserDetailsDto implements UserDetails {
 
+  private Long id;
   private String username;
   private String password;
   private String email;
