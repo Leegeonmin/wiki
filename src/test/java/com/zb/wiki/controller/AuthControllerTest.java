@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.zb.wiki.security.JwtProvider;
 import com.zb.wiki.service.MemberService;
+import com.zb.wiki.service.Oauth2Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,6 +28,8 @@ class AuthControllerTest {
   private MemberService memberService;
   @MockBean
   private JwtProvider jwtProvider;
+  @MockBean
+  private Oauth2Service oauth2Service;
   @Autowired
   private MockMvc mockMvc;
 
