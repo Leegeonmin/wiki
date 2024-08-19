@@ -41,6 +41,9 @@ public class Document {
   private String context;
   @Column(nullable = true)
   private String tag;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "author_id")
+  private Member createdBy;
 
   @NotNull
   @Enumerated(EnumType.STRING)
