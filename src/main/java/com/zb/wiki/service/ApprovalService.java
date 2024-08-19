@@ -18,22 +18,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ApprovalService {
+
   private final ApprovalRepository approvalRepository;
   private final DocumentRepository documentRepository;
   private final MemberRepository memberRepository;
 
   private static final int APPROVAL_PERIOD = 7;
 
-
   /**
-   * 문서 요청 로직
-   * 1. 멤버Id가 유효한지
-   * 2. 문서Id가 유효한지
-   * 3. 문서 유효한지 검사 후
-   * 4. Approval 저장
-   * @param userId Jwt 유저
+   * 문서 요청 로직 1. 멤버Id가 유효한지 2. 문서Id가 유효한지 3. 문서 유효한지 검사 후 4. Approval 저장
+   *
+   * @param userId     Jwt 유저
    * @param documentId 문서Id
-   * @param status 승인 상태, APPROVED or REJECTED
+   * @param status     승인 상태, APPROVED or REJECTED
    */
   @Transactional(readOnly = false)
   public void approveDocument(Long userId, Long documentId, String status) {
@@ -58,12 +55,10 @@ public class ApprovalService {
 
 
   /**
-   * 문서 요청 검증 로직
-   * 1. 문서의 추가 요청 기간 후 일주일 이내인지
-   * 2. 문서의 상태가 PENDING인지
-   * 3. 문서에 이미 사용자가 승인 요청을 한 이력이 있는지 확인
+   * 문서 요청 검증 로직 1. 문서의 추가 요청 기간 후 일주일 이내인지 2. 문서의 상태가 PENDING인지 3. 문서에 이미 사용자가 승인 요청을 한 이력이 있는지 확인
+   *
    * @param document 문서
-   * @param user 유저
+   * @param user     유저
    */
   private void approveDocumentValidation(Document document, Member user) {
 
@@ -74,11 +69,12 @@ public class ApprovalService {
       throw new GlobalException(GlobalError.APPROVAL_PERIOD_EXPIRED);
     }
 
-    if(document.getDocumentStatus() != DocumentStatus.PENDING){
+    if (document.getDocumentStatus() != DocumentStatus.PENDING) {
       throw new GlobalException(GlobalError.DOCUMENT_TYPE_ERROR);
     }
-    if(approvalRepository.existsByDocumentIdAndUserId(document.getId(), user.getId())){
+    if (approvalRepository.existsByDocumentIdAndUserId(document.getId(), user.getId())) {
       throw new GlobalException(GlobalError.USER_ALREADY_SUBMIT);
     }
   }
+
 }
