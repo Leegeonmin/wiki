@@ -1,12 +1,14 @@
 package com.zb.wiki.controller;
 
 
+import com.zb.wiki.dto.ApproveDocument;
 import com.zb.wiki.dto.CreateDocument;
 import com.zb.wiki.dto.CustomUserDetailsDto;
 import com.zb.wiki.dto.DocumentDto;
 import com.zb.wiki.dto.GetPendingDocument;
 import com.zb.wiki.dto.GetPendingDocuments;
 import com.zb.wiki.dto.GlobalResponse;
+import com.zb.wiki.service.ApprovalService;
 import com.zb.wiki.service.DocumentService;
 import com.zb.wiki.type.GlobalResponseStatus;
 import jakarta.validation.Valid;
@@ -30,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DocumentController {
 
   private final DocumentService documentService;
-
+  private final ApprovalService approvalService;
 
   /**
    * 문서 추가 요청 API
@@ -87,6 +89,7 @@ public class DocumentController {
 
   /**
    * 미승인 문건 단일 조회
+   *
    * @param documentId 문서의 Id
    * @return 문서의 Id에 일치하는 문서
    */
@@ -113,4 +116,29 @@ public class DocumentController {
             .build()
     );
   }
+
+  /**
+   * 문서 승인 API
+   * Request Body를 통해 승인/미승인 여부 제출
+   * @param documentId 문서 Id
+   * @param request 승인/미승인 여부
+   * @param member Jwt 유저 
+   * @return 요청 성공 메시지
+   */
+  @PostMapping("/{documentId}/approval")
+  public ResponseEntity<GlobalResponse<String>> approveDocument(
+      @PathVariable(name = "documentId") Long documentId
+      , @RequestBody @Valid ApproveDocument.Request request
+      , @AuthenticationPrincipal CustomUserDetailsDto member) {
+    log.info("Approve document by documentId {}", documentId);
+    approvalService.approveDocument(member.getId(), documentId, request.getStatus());
+
+    return ResponseEntity.ok().body(
+        GlobalResponse.<String>builder()
+            .status(GlobalResponseStatus.SUCCESS)
+            .message("문서 " + request.getStatus() + " 성공" )
+            .build()
+    );
+  }
+
 }

@@ -77,15 +77,15 @@ public class DocumentService {
 
   private List<String> setTagToList(String tag) {
     if (StringUtils.hasText(tag)) {
-      return List.of(tag.split("\\" +TAG_DELIMITER));
+      return List.of(tag.split("\\" + TAG_DELIMITER));
     } else {
       return List.of();
     }
   }
 
   /**
-   * DB에서 미승인 문서 조회 로직
-   * 1. Pending상태인 문서 조회
+   * DB에서 미승인 문서 조회 로직 1. Pending상태인 문서 조회
+   *
    * @param pageable Paging처리
    * @return DocumentDto
    */
@@ -105,10 +105,8 @@ public class DocumentService {
   }
 
   /**
-   * 문서의 ID로 미승인 문서 조회
-   * 1. id로 문서가 존재하는지
-   * 2. 해당 문서가 승인 대기 문서인지 확인 후
-   * 3. 문서 반환
+   * 문서의 ID로 미승인 문서 조회 1. id로 문서가 존재하는지 2. 해당 문서가 승인 대기 문서인지 확인 후 3. 문서 반환
+   *
    * @param documentId 문서 Id
    * @return 문서
    */
@@ -116,7 +114,7 @@ public class DocumentService {
     Document document = documentRepository.findById(documentId).orElseThrow(
         () -> new GlobalException(GlobalError.DOCUMENT_NOT_FOUND)
     );
-    if(document.getDocumentStatus() != DocumentStatus.PENDING) {
+    if (document.getDocumentStatus() != DocumentStatus.PENDING) {
       throw new GlobalException(GlobalError.DOCUMENT_TYPE_ERROR);
     }
 
