@@ -83,4 +83,20 @@ class DocumentControllerTest {
         .andExpect(jsonPath("$.message").value("승인 대기 문서 조회 완료"))
         .andExpect(jsonPath("$.data[0].title").value("title"));
   }
+
+  @Test
+  @DisplayName("미승인 문서 단일 조회 성공")
+  void getPendingDocument_success() throws Exception {
+    //given
+    DocumentDto dto = DocumentDto.builder().id(10L).author("test")
+        .title("title").tags(new ArrayList<>(List.of("tag1", "tag2"))).build();
+    given(documentService.findPendingDocument(anyLong()))
+        .willReturn(dto);
+    //when
+    //then
+    mockMvc.perform(get("/document/pending/10")
+        ).andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("승인 대기 문서 단건 조회 완료"))
+        .andExpect(jsonPath("$.data.title").value("title"));
+  }
 }
