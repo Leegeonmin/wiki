@@ -12,6 +12,7 @@ import lombok.Getter;
 public class DocumentDto {
   private Long id;
   private String title;
+  private String context;
   private List<String> tags;
   private String author;
 }

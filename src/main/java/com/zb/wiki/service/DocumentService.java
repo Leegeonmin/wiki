@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -75,9 +76,8 @@ public class DocumentService {
   }
 
   private List<String> setTagToList(String tag) {
-    if (tag != null) {
-      List<String> split = List.of(tag.split("\\" +TAG_DELIMITER));
-      return split;
+    if (StringUtils.hasText(tag)) {
+      return List.of(tag.split("\\" +TAG_DELIMITER));
     } else {
       return List.of();
     }
@@ -101,6 +101,32 @@ public class DocumentService {
             .author(x.getCreatedBy().getUsername())
             .build()
     ).toList();
+
+  }
+
+  /**
+   * 문서의 ID로 미승인 문서 조회
+   * 1. id로 문서가 존재하는지
+   * 2. 해당 문서가 승인 대기 문서인지 확인 후
+   * 3. 문서 반환
+   * @param documentId 문서 Id
+   * @return 문서
+   */
+  public DocumentDto findPendingDocument(Long documentId) {
+    Document document = documentRepository.findById(documentId).orElseThrow(
+        () -> new GlobalException(GlobalError.DOCUMENT_NOT_FOUND)
+    );
+    if(document.getDocumentStatus() != DocumentStatus.PENDING) {
+      throw new GlobalException(GlobalError.DOCUMENT_TYPE_ERROR);
+    }
+
+    return DocumentDto.builder()
+        .id(document.getId())
+        .title(document.getTitle())
+        .tags(this.setTagToList(document.getTag()))
+        .author(document.getCreatedBy().getUsername())
+        .context(document.getContext())
+        .build();
 
   }
 }

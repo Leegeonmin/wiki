@@ -4,11 +4,13 @@ package com.zb.wiki.controller;
 import com.zb.wiki.dto.CreateDocument;
 import com.zb.wiki.dto.CustomUserDetailsDto;
 import com.zb.wiki.dto.DocumentDto;
+import com.zb.wiki.dto.GetPendingDocument;
 import com.zb.wiki.dto.GetPendingDocuments;
 import com.zb.wiki.dto.GlobalResponse;
 import com.zb.wiki.service.DocumentService;
 import com.zb.wiki.type.GlobalResponseStatus;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,8 +56,8 @@ public class DocumentController {
   }
 
   /**
-   * 미승인 문서 조회 API
-   * 문서 추가 요청을 통해 등록은 되었지만 승인되지 않은 문서들을 조회할 수 있는 API
+   * 미승인 문서 조회 API 문서 추가 요청을 통해 등록은 되었지만 승인되지 않은 문서들을 조회할 수 있는 API
+   *
    * @param pageable Paging처리
    * @return 승인 대기 문서
    */
@@ -80,6 +83,35 @@ public class DocumentController {
             )
             .build()
     );
+  }
 
+
+  /**
+   * 미승인 문건 단일 조회
+   * @param documentId 문서의 Id
+   * @return 문서의 Id에 일치하는 문서
+   */
+  @GetMapping("/pending/{documentId}")
+  public ResponseEntity<GlobalResponse<GetPendingDocument.Response>> getPendingDocument(
+      @PathVariable(name = "documentId")
+      Long documentId) {
+    log.info("Get pending document by documentId {}", documentId);
+    DocumentDto pendingDocument = documentService.findPendingDocument(documentId);
+
+    return ResponseEntity.ok().body(
+        GlobalResponse.<GetPendingDocument.Response>builder()
+            .status(GlobalResponseStatus.SUCCESS)
+            .message("승인 대기 문서 단건 조회 완료")
+            .data(
+                GetPendingDocument.Response.builder()
+                    .id(pendingDocument.getId())
+                    .title(pendingDocument.getTitle())
+                    .context(pendingDocument.getContext())
+                    .tags(pendingDocument.getTags())
+                    .author(pendingDocument.getAuthor())
+                    .build()
+            )
+            .build()
+    );
   }
 }
