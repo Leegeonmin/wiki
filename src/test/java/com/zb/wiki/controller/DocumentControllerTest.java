@@ -9,11 +9,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zb.wiki.custom.WithCustomMockUser;
+import com.zb.wiki.dto.ApproveDocument;
 import com.zb.wiki.dto.CreateDocument;
 import com.zb.wiki.dto.DocumentDto;
 import com.zb.wiki.security.JwtProvider;
+import com.zb.wiki.service.ApprovalService;
 import com.zb.wiki.service.DocumentService;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +38,8 @@ class DocumentControllerTest {
 
   @MockBean
   private DocumentService documentService;
+  @MockBean
+  private ApprovalService approvalService;
   @MockBean
   private JwtProvider jwtProvider;
   @Autowired
@@ -98,5 +103,24 @@ class DocumentControllerTest {
         ).andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("승인 대기 문서 단건 조회 완료"))
         .andExpect(jsonPath("$.data.title").value("title"));
+  }
+
+  @Test
+  @DisplayName("미승인 문서 승인 요청 성공")
+  @WithCustomMockUser
+  void approveDocument_success() throws Exception {
+    //given
+    Mockito.doNothing().when(approvalService)
+        .approveDocument(anyLong(), anyLong(), anyString());
+    ApproveDocument.Request request = ApproveDocument.Request.builder()
+        .status("APPROVED")
+        .build();
+    //when
+    //then
+    mockMvc.perform(post("/document/1/approval")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+        ).andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("문서 APPROVED 성공"));
   }
 }
