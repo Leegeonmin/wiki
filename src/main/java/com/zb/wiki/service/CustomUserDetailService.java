@@ -22,6 +22,7 @@ public class CustomUserDetailService implements UserDetailsService {
     Member member = memberRepository.findByUsername(username)
         .orElseThrow(() -> new GlobalException(GlobalError.USER_NOT_FOUND));
     return CustomUserDetailsDto.builder()
+        .id(member.getId())
         .username(member.getUsername())
         .password(member.getPassword())
         .email(member.getEmail())
