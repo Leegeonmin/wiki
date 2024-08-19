@@ -24,6 +24,7 @@ public class JwtSecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers("/auth/**").permitAll()
+            .requestMatchers("/document/pending").permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

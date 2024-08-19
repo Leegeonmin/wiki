@@ -55,6 +55,6 @@ public class Document {
   private LocalDateTime modifiedDateTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "modified_id")
   private Member modifiedBy;
 }
