@@ -51,9 +51,9 @@ public class Member{
   private String email;
 
   @CreatedDate
-  private LocalDateTime createdDate;
+  private LocalDateTime createdDateTime;
   @LastModifiedDate
-  private LocalDateTime modifiedDate;
+  private LocalDateTime modifiedDateTime;
 
   public void updateExistingUser(KakaoUserInfo kakaoUserInfo){
     this.username = kakaoUserInfo.getKakaoAccount().getProfile().getNickname();

@@ -46,10 +46,8 @@ public class DocumentService {
       throw new GlobalException(GlobalError.DOCUMENT_TITLE_DUPLICATED);
     }
 
-    String tag = null;
-    if (tags != null && !tags.isEmpty()) {
-      tag = setTag(tags);
-    }
+    String tag = setTag(tags);
+
     documentRepository.save(
         Document.builder()
             .documentStatus(DocumentStatus.PENDING)
@@ -69,6 +67,10 @@ public class DocumentService {
    * @return String
    */
   private String setTag(List<String> tags) {
-    return String.join(TAG_DELIMITER, tags);
+    if(tags != null && !tags.isEmpty()){
+      return String.join(TAG_DELIMITER, tags);
+    }else{
+      return null;
+    }
   }
 }

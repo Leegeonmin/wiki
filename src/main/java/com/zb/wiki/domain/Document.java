@@ -47,9 +47,9 @@ public class Document {
   private DocumentStatus documentStatus;
 
   @CreatedDate
-  private LocalDateTime createdDate;
+  private LocalDateTime createdDateTime;
   @LastModifiedDate
-  private LocalDateTime modifiedDate;
+  private LocalDateTime modifiedDateTime;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id")
