@@ -1,8 +1,10 @@
 package com.zb.wiki.controller;
 
+import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,10 +12,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zb.wiki.custom.WithCustomMockUser;
 import com.zb.wiki.dto.CreateDocument;
+import com.zb.wiki.dto.DocumentDto;
 import com.zb.wiki.security.JwtProvider;
 import com.zb.wiki.service.DocumentService;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -58,5 +63,24 @@ class DocumentControllerTest {
             .content(objectMapper.writeValueAsString(request))
         ).andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("문서 추가 요청 완료"));
+  }
+
+  @Test
+  @DisplayName("미승인 문서 조회 성공")
+  void getPendingDocuments_success() throws Exception {
+    //given
+    Pageable pageable = Pageable.ofSize(10);
+    List<DocumentDto> dtoList = new ArrayList<>();
+    DocumentDto dto = DocumentDto.builder().id(10L).author("test")
+        .title("title").tags(new ArrayList<>(List.of("tag1", "tag2"))).build();
+    dtoList.add(dto);
+    given(documentService.findPendingDocuments(pageable))
+        .willReturn(dtoList);
+    //when
+    //then
+    mockMvc.perform(get("/document/pending?page=0&size=10")
+        ).andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("승인 대기 문서 조회 완료"))
+        .andExpect(jsonPath("$.data[0].title").value("title"));
   }
 }
