@@ -17,13 +17,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class JwtSecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+  private static final String[] PERMIT_URI_LIST ={
+    "/auth/**", "/document/pending/**"
+  };
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers("/auth/**").permitAll()
+            .requestMatchers(PERMIT_URI_LIST).permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
