@@ -156,11 +156,11 @@ public class DocumentService {
 
     String lockKey = "document_lock:" + documentId;
     RLock lock = redissonClient.getLock(lockKey);
-    boolean isLocked = lock.tryLock(10, 30, TimeUnit.SECONDS);
 
-    if(isLocked){
+    if(lock.tryLock(10, 30, TimeUnit.SECONDS)){
       try{
         document.update(context,this.setTagToString(tags), member);
+        documentRepository.save(document);
       }finally {
         lock.unlock();
       }

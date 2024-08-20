@@ -62,6 +62,5 @@ public class Document {
     this.context = context;
     this.tag = tags;
     this.modifiedBy = modifiedBy;
-    this.modifiedDateTime = LocalDateTime.now();
   }
 }
