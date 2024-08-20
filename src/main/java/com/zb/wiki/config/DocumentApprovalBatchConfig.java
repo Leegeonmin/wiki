@@ -25,11 +25,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class DocumentApprovalBatchConfig extends DefaultBatchConfiguration {
 
-  private static final Double APPROVAL_PERC = 0.7;
+  private static final double APPROVAL_PERC = 0.7;
+  private static final int APPROVAL_COUNT = 10;
 
   private final ApprovalRepository approvalRepository;
   private final DocumentRepository documentRepository;
-  private static int CHUNK_SIZE = 10;
+  private static final int CHUNK_SIZE = 10;
 
   @Bean
   public Job job(final JobRepository jobRepository, final Step updateDocumentStatusJob) {
@@ -72,9 +73,8 @@ public class DocumentApprovalBatchConfig extends DefaultBatchConfiguration {
     objects.getItems().forEach(item -> {
       List<Approval> approvalList = approvalRepository.findByDocument(item);
       long approvalCount = approvalList.stream().filter(Approval::isApproved).count();
-      boolean shouldApprove;
-      shouldApprove =
-          approvalList.size() >= 10
+      boolean shouldApprove =
+          approvalList.size() >= APPROVAL_COUNT
               && (double) approvalCount / approvalList.size() >= APPROVAL_PERC;
 
       if (shouldApprove) {
