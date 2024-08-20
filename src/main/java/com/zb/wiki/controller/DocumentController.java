@@ -143,6 +143,14 @@ public class DocumentController {
     );
   }
 
+  /**
+   * 문서 편집 API 
+   * @param documentId 문서ID
+   * @param request 문서 내용, 태그
+   * @param member jwt
+   * @return 성공 메시지
+   * @throws InterruptedException lock관련 에러
+   */
   @PatchMapping("/{documentId}")
   public ResponseEntity<GlobalResponse<String>> updateDocument(@PathVariable(name = "documentId") Long documentId,
       @RequestBody  UpdateDocument.Request request ,@AuthenticationPrincipal CustomUserDetailsDto member)

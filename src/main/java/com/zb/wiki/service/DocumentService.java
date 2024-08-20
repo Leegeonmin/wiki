@@ -131,6 +131,16 @@ public class DocumentService {
 
   }
 
+  /**
+   * 문서 편집 로직
+   * 1. memberId, documentId가 유효한지, Document상태가 APPROVED인지 확인
+   * 2. lock 획득하여 문서 수정 진행 후 해제
+   * @param memeberId  편집자ID
+   * @param documentId 문서ID
+   * @param context 수정할 문서 내용
+   * @param tags 수정할 문서 태그
+   * @throws InterruptedException lock관련 에러
+   */
   @Transactional(readOnly = false)
   public void updateDocument(Long memeberId, Long documentId, String context, List<String> tags)
       throws InterruptedException {
