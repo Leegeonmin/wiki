@@ -8,6 +8,7 @@ import com.zb.wiki.dto.DocumentDto;
 import com.zb.wiki.dto.GetPendingDocument;
 import com.zb.wiki.dto.GetPendingDocuments;
 import com.zb.wiki.dto.GlobalResponse;
+import com.zb.wiki.dto.UpdateDocument;
 import com.zb.wiki.service.ApprovalService;
 import com.zb.wiki.service.DocumentService;
 import com.zb.wiki.type.GlobalResponseStatus;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -141,4 +143,17 @@ public class DocumentController {
     );
   }
 
+  @PatchMapping("/{documentId}")
+  public ResponseEntity<GlobalResponse<String>> updateDocument(@PathVariable(name = "documentId") Long documentId,
+      @RequestBody  UpdateDocument.Request request ,@AuthenticationPrincipal CustomUserDetailsDto member)
+      throws InterruptedException {
+    log.info("Update document by documentId {}", documentId);
+    documentService.updateDocument(member.getId(), documentId, request.getContext(), request.getTags());
+    return ResponseEntity.ok().body(
+        GlobalResponse.<String>builder()
+            .status(GlobalResponseStatus.SUCCESS)
+            .message("문서 수정 성공" )
+            .build()
+    );
+  }
 }

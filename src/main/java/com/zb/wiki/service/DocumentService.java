@@ -10,8 +10,11 @@ import com.zb.wiki.repository.DocumentRepository;
 import com.zb.wiki.repository.MemberRepository;
 import com.zb.wiki.type.DocumentStatus;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +29,7 @@ public class DocumentService {
   private static final String TAG_DELIMITER = "|";
   private final DocumentRepository documentRepository;
   private final MemberRepository memberRepository;
-
+  private final RedissonClient redissonClient;
 
   /**
    * 문서 추가 요청 로직 1. jwt로 통해 받은 userid로 사용자 인증 2. 문서 제목이 중복인지 확인 3. List로 입력받은 태그 String으로 변환 후 4. 문서
@@ -126,5 +129,33 @@ public class DocumentService {
         .context(document.getContext())
         .build();
 
+  }
+
+  @Transactional(readOnly = false)
+  public void updateDocument(Long memeberId, Long documentId, String context, List<String> tags)
+      throws InterruptedException {
+    Member member = memberRepository.findById(memeberId).orElseThrow(
+        () -> new GlobalException(GlobalError.USER_NOT_FOUND)
+    );
+    Document document = documentRepository.findById(documentId).orElseThrow(
+        () -> new GlobalException(GlobalError.DOCUMENT_NOT_FOUND)
+    );
+    if (document.getDocumentStatus() != DocumentStatus.APPROVED) {
+      throw new GlobalException(GlobalError.DOCUMENT_TYPE_ERROR);
+    }
+
+    String lockKey = "document_lock:" + documentId;
+    RLock lock = redissonClient.getLock(lockKey);
+    boolean isLocked = lock.tryLock(10, 30, TimeUnit.SECONDS);
+
+    if(isLocked){
+      try{
+        document.update(context,this.setTagToString(tags), member);
+      }finally {
+        lock.unlock();
+      }
+    }else{
+      throw new GlobalException(GlobalError.DOCUMENT_TRANSACTION_LOCK);
+    }
   }
 }
