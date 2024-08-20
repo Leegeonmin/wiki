@@ -23,7 +23,7 @@ public class DocumentApprovalBatchSecheduler {
    * 문서 상태 업데이트 스케쥴러
    * 매 새벽 1시마다 스케쥴링
    */
-  @Scheduled(cron = "0 1 * * *")
+  @Scheduled(cron = "0 1 * * * *")
   public void runBatch() throws Exception {
     log.info("document Update Scheduler run");
     JobParameters jobParameters = new JobParametersBuilder()

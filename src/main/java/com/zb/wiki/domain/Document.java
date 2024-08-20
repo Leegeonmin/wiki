@@ -57,4 +57,10 @@ public class Document {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "modified_id")
   private Member modifiedBy;
+
+  public void update(String context, String tags, Member modifiedBy){
+    this.context = context;
+    this.tag = tags;
+    this.modifiedBy = modifiedBy;
+  }
 }
