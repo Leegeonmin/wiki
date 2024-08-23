@@ -18,7 +18,7 @@ public class JwtSecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private static final String[] PERMIT_URI_LIST ={
-    "/auth/**", "/document/pending/**"
+    "/auth/**", "/document/pending/**", "/document", "/document/test"
   };
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -4,6 +4,7 @@ package com.zb.wiki.service;
 import com.zb.wiki.domain.Document;
 import com.zb.wiki.domain.Member;
 import com.zb.wiki.dto.DocumentDto;
+import com.zb.wiki.dto.DocumentSearchDto;
 import com.zb.wiki.exception.GlobalError;
 import com.zb.wiki.exception.GlobalException;
 import com.zb.wiki.repository.DocumentRepository;
@@ -30,6 +31,7 @@ public class DocumentService {
   private final DocumentRepository documentRepository;
   private final MemberRepository memberRepository;
   private final RedissonClient redissonClient;
+  private final DocumentSearchService documentSearchService;
 
   /**
    * 문서 추가 요청 로직 1. jwt로 통해 받은 userid로 사용자 인증 2. 문서 제목이 중복인지 확인 3. List로 입력받은 태그 String으로 변환 후 4. 문서
@@ -132,13 +134,12 @@ public class DocumentService {
   }
 
   /**
-   * 문서 편집 로직
-   * 1. memberId, documentId가 유효한지, Document상태가 APPROVED인지 확인
-   * 2. lock 획득하여 문서 수정 진행 후 해제
+   * 문서 편집 로직 1. memberId, documentId가 유효한지, Document상태가 APPROVED인지 확인 2. lock 획득하여 문서 수정 진행 후 해제
+   *
    * @param memeberId  편집자ID
    * @param documentId 문서ID
-   * @param context 수정할 문서 내용
-   * @param tags 수정할 문서 태그
+   * @param context    수정할 문서 내용
+   * @param tags       수정할 문서 태그
    * @throws InterruptedException lock관련 에러
    */
   @Transactional(readOnly = false)
@@ -157,15 +158,25 @@ public class DocumentService {
     String lockKey = "document_lock:" + documentId;
     RLock lock = redissonClient.getLock(lockKey);
 
-    if(lock.tryLock(10, 30, TimeUnit.SECONDS)){
-      try{
-        document.update(context,this.setTagToString(tags), member);
+    if (lock.tryLock(10, 30, TimeUnit.SECONDS)) {
+      try {
+        document.update(context, this.setTagToString(tags), member);
         documentRepository.save(document);
-      }finally {
+      } finally {
         lock.unlock();
       }
-    }else{
+    } else {
       throw new GlobalException(GlobalError.DOCUMENT_TRANSACTION_LOCK);
+    }
+  }
+
+  public void updateDocumentToElasticSearch() {
+    Pageable pageable = Pageable.ofSize(1000);
+    List<Document> byDocumentStatus = documentRepository.findByDocumentStatus(
+        DocumentStatus.APPROVED, pageable);
+
+    for(Document document : byDocumentStatus) {
+      documentSearchService.save(document);
     }
   }
 }

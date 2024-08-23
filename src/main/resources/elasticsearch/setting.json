@@ -1,0 +1,15 @@
+{
+  "analysis": {
+    "analyzer": {
+      "custom_analyzer": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": [
+          "lowercase",
+          "stop",
+          "snowball"
+        ]
+      }
+    }
+  }
+}
