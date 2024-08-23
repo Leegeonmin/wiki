@@ -2,9 +2,12 @@ package com.zb.wiki.config;
 
 import com.zb.wiki.domain.Approval;
 import com.zb.wiki.domain.Document;
+import com.zb.wiki.elasticsearch.DocumentDocument;
 import com.zb.wiki.repository.ApprovalRepository;
 import com.zb.wiki.repository.DocumentRepository;
+import com.zb.wiki.repository.DocumentSearchRepository;
 import com.zb.wiki.type.DocumentStatus;
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class DocumentApprovalBatchConfig extends DefaultBatchConfiguration {
 
   private final ApprovalRepository approvalRepository;
   private final DocumentRepository documentRepository;
+  private final DocumentSearchRepository documentSearchRepository;
   private static final int CHUNK_SIZE = 10;
 
   @Bean
@@ -60,7 +64,7 @@ public class DocumentApprovalBatchConfig extends DefaultBatchConfiguration {
 
   @Bean
   public ItemWriter<Document> documentWriter() {
-    return this::updateDocumentState;
+    return this::updateDocumentStateAndSaveToElasticSearch;
   }
 
   /**
@@ -69,7 +73,7 @@ public class DocumentApprovalBatchConfig extends DefaultBatchConfiguration {
    * 2. 승인의 비율이 70%가 넘는지 확인 후 승인/미승인 여부 결정
    * @param objects
    */
-  private void updateDocumentState(final Chunk<? extends Document> objects) {
+  protected void updateDocumentStateAndSaveToElasticSearch(final Chunk<? extends Document> objects) {
     objects.getItems().forEach(item -> {
       List<Approval> approvalList = approvalRepository.findByDocument(item);
       long approvalCount = approvalList.stream().filter(Approval::isApproved).count();
@@ -79,6 +83,7 @@ public class DocumentApprovalBatchConfig extends DefaultBatchConfiguration {
 
       if (shouldApprove) {
         documentRepository.updateDocumentStatusById(item.getId(), DocumentStatus.APPROVED);
+        documentSearchRepository.save(DocumentDocument.from(item));
       } else {
         documentRepository.updateDocumentStatusById(item.getId(), DocumentStatus.REJECTED);
       }
