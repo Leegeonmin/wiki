@@ -4,7 +4,6 @@ package com.zb.wiki.service;
 import com.zb.wiki.domain.Document;
 import com.zb.wiki.domain.Member;
 import com.zb.wiki.dto.DocumentDto;
-import com.zb.wiki.dto.DocumentSearchDto;
 import com.zb.wiki.exception.GlobalError;
 import com.zb.wiki.exception.GlobalException;
 import com.zb.wiki.repository.DocumentRepository;

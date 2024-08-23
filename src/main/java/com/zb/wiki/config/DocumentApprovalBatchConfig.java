@@ -7,7 +7,6 @@ import com.zb.wiki.repository.ApprovalRepository;
 import com.zb.wiki.repository.DocumentRepository;
 import com.zb.wiki.repository.DocumentSearchRepository;
 import com.zb.wiki.type.DocumentStatus;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
