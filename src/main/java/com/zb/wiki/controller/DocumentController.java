@@ -160,4 +160,14 @@ public class DocumentController {
             .message("문서 조회 성공").data(search).build());
   }
 
+  @GetMapping("/topsearch")
+  public ResponseEntity<GlobalResponse<List<String>>> getTopKeywords() {
+    log.info("Get top keywords");
+    List<String> topSearches = documentSearchService.getTopSearches();
+    return ResponseEntity.ok().body(
+        GlobalResponse.<List<String>>builder().status(GlobalResponseStatus.SUCCESS)
+            .message("실시간 검색 순위 조회 완료")
+            .data(topSearches)
+            .build());
+  }
 }
