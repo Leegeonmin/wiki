@@ -17,6 +17,7 @@ import com.zb.wiki.dto.CreateDocument;
 import com.zb.wiki.dto.DocumentDto;
 import com.zb.wiki.security.JwtProvider;
 import com.zb.wiki.service.ApprovalService;
+import com.zb.wiki.service.DocumentSearchService;
 import com.zb.wiki.service.DocumentService;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +41,8 @@ class DocumentControllerTest {
   private DocumentService documentService;
   @MockBean
   private ApprovalService approvalService;
+  @MockBean
+  private DocumentSearchService documentSearchService;
   @MockBean
   private JwtProvider jwtProvider;
   @Autowired
