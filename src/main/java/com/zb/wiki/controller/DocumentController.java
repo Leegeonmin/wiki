@@ -5,11 +5,15 @@ import com.zb.wiki.dto.ApproveDocument;
 import com.zb.wiki.dto.CreateDocument;
 import com.zb.wiki.dto.CustomUserDetailsDto;
 import com.zb.wiki.dto.DocumentDto;
+//import com.zb.wiki.dto.DocumentSearchDto;
+import com.zb.wiki.dto.DocumentSearchDto;
 import com.zb.wiki.dto.GetPendingDocument;
 import com.zb.wiki.dto.GetPendingDocuments;
 import com.zb.wiki.dto.GlobalResponse;
+import com.zb.wiki.dto.SearchType;
 import com.zb.wiki.dto.UpdateDocument;
 import com.zb.wiki.service.ApprovalService;
+import com.zb.wiki.service.DocumentSearchService;
 import com.zb.wiki.service.DocumentService;
 import com.zb.wiki.type.GlobalResponseStatus;
 import jakarta.validation.Valid;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,6 +40,7 @@ public class DocumentController {
 
   private final DocumentService documentService;
   private final ApprovalService approvalService;
+  private final DocumentSearchService documentSearchService;
 
   /**
    * 문서 추가 요청 API
@@ -51,11 +57,8 @@ public class DocumentController {
     documentService.addDocumentPending(member.getId(), request.getTitle(), request.getContext(),
         request.getTags());
     return ResponseEntity.ok().body(
-        GlobalResponse.<String>builder()
-            .status(GlobalResponseStatus.SUCCESS)
-            .message("문서 추가 요청 완료")
-            .build()
-    );
+        GlobalResponse.<String>builder().status(GlobalResponseStatus.SUCCESS).message("문서 추가 요청 완료")
+            .build());
   }
 
   /**
@@ -70,22 +73,11 @@ public class DocumentController {
     log.info("Get pending documents");
     List<DocumentDto> pendingDocuments = documentService.findPendingDocuments(pageable);
 
-    return ResponseEntity.ok().body(
-        GlobalResponse.<List<GetPendingDocuments.Response>>builder()
-            .status(GlobalResponseStatus.SUCCESS)
-            .message("승인 대기 문서 조회 완료")
-            .data(
-                pendingDocuments.stream().map(
-                    x -> GetPendingDocuments.Response.builder()
-                        .id(x.getId())
-                        .title(x.getTitle())
-                        .tags(x.getTags())
-                        .author(x.getAuthor())
-                        .build()
-                ).toList()
-            )
-            .build()
-    );
+    return ResponseEntity.ok().body(GlobalResponse.<List<GetPendingDocuments.Response>>builder()
+        .status(GlobalResponseStatus.SUCCESS).message("승인 대기 문서 조회 완료").data(
+            pendingDocuments.stream().map(
+                x -> GetPendingDocuments.Response.builder().id(x.getId()).title(x.getTitle())
+                    .tags(x.getTags()).author(x.getAuthor()).build()).toList()).build());
   }
 
 
@@ -97,71 +89,85 @@ public class DocumentController {
    */
   @GetMapping("/pending/{documentId}")
   public ResponseEntity<GlobalResponse<GetPendingDocument.Response>> getPendingDocument(
-      @PathVariable(name = "documentId")
-      Long documentId) {
+      @PathVariable(name = "documentId") Long documentId) {
     log.info("Get pending document by documentId {}", documentId);
     DocumentDto pendingDocument = documentService.findPendingDocument(documentId);
 
     return ResponseEntity.ok().body(
-        GlobalResponse.<GetPendingDocument.Response>builder()
-            .status(GlobalResponseStatus.SUCCESS)
-            .message("승인 대기 문서 단건 조회 완료")
-            .data(
-                GetPendingDocument.Response.builder()
-                    .id(pendingDocument.getId())
-                    .title(pendingDocument.getTitle())
-                    .context(pendingDocument.getContext())
-                    .tags(pendingDocument.getTags())
-                    .author(pendingDocument.getAuthor())
-                    .build()
-            )
-            .build()
-    );
+        GlobalResponse.<GetPendingDocument.Response>builder().status(GlobalResponseStatus.SUCCESS)
+            .message("승인 대기 문서 단건 조회 완료").data(
+                GetPendingDocument.Response.builder().id(pendingDocument.getId())
+                    .title(pendingDocument.getTitle()).context(pendingDocument.getContext())
+                    .tags(pendingDocument.getTags()).author(pendingDocument.getAuthor()).build())
+            .build());
   }
 
   /**
-   * 문서 승인 API
-   * Request Body를 통해 승인/미승인 여부 제출
+   * 문서 승인 API Request Body를 통해 승인/미승인 여부 제출
+   *
    * @param documentId 문서 Id
-   * @param request 승인/미승인 여부
-   * @param member Jwt 유저 
+   * @param request    승인/미승인 여부
+   * @param member     Jwt 유저
    * @return 요청 성공 메시지
    */
   @PostMapping("/{documentId}/approval")
   public ResponseEntity<GlobalResponse<String>> approveDocument(
-      @PathVariable(name = "documentId") Long documentId
-      , @RequestBody @Valid ApproveDocument.Request request
-      , @AuthenticationPrincipal CustomUserDetailsDto member) {
+      @PathVariable(name = "documentId") Long documentId,
+      @RequestBody @Valid ApproveDocument.Request request,
+      @AuthenticationPrincipal CustomUserDetailsDto member) {
     log.info("Approve document by documentId {}", documentId);
     approvalService.approveDocument(member.getId(), documentId, request.getStatus());
 
     return ResponseEntity.ok().body(
-        GlobalResponse.<String>builder()
-            .status(GlobalResponseStatus.SUCCESS)
-            .message("문서 " + request.getStatus() + " 성공" )
-            .build()
-    );
+        GlobalResponse.<String>builder().status(GlobalResponseStatus.SUCCESS)
+            .message("문서 " + request.getStatus() + " 성공").build());
   }
 
   /**
-   * 문서 편집 API 
+   * 문서 편집 API
+   *
    * @param documentId 문서ID
-   * @param request 문서 내용, 태그
-   * @param member jwt
+   * @param request    문서 내용, 태그
+   * @param member     jwt
    * @return 성공 메시지
    * @throws InterruptedException lock관련 에러
    */
   @PatchMapping("/{documentId}")
-  public ResponseEntity<GlobalResponse<String>> updateDocument(@PathVariable(name = "documentId") Long documentId,
-      @RequestBody  UpdateDocument.Request request ,@AuthenticationPrincipal CustomUserDetailsDto member)
-      throws InterruptedException {
+  public ResponseEntity<GlobalResponse<String>> updateDocument(
+      @PathVariable(name = "documentId") Long documentId,
+      @RequestBody UpdateDocument.Request request,
+      @AuthenticationPrincipal CustomUserDetailsDto member) throws InterruptedException {
     log.info("Update document by documentId {}", documentId);
-    documentService.updateDocument(member.getId(), documentId, request.getContext(), request.getTags());
+    documentService.updateDocument(member.getId(), documentId, request.getContext(),
+        request.getTags());
     return ResponseEntity.ok().body(
-        GlobalResponse.<String>builder()
-            .status(GlobalResponseStatus.SUCCESS)
-            .message("문서 수정 성공" )
-            .build()
-    );
+        GlobalResponse.<String>builder().status(GlobalResponseStatus.SUCCESS).message("문서 수정 성공")
+            .build());
+  }
+
+  @GetMapping()
+  public ResponseEntity<GlobalResponse<List<DocumentSearchDto>>> getDocuments(
+      @RequestParam(name = "keyword") String keyword,
+      @RequestParam(name = "searchtype") String searchType
+      , Pageable pageable) {
+    log.info("Get documents");
+
+    List<DocumentSearchDto> search = documentSearchService.search(keyword,
+        SearchType.valueOf(searchType.toUpperCase()), pageable);
+
+    return ResponseEntity.ok().body(
+        GlobalResponse.<List<DocumentSearchDto>>builder().status(GlobalResponseStatus.SUCCESS)
+            .message("문서 조회 성공").data(search).build());
+  }
+
+  @GetMapping("/topsearch")
+  public ResponseEntity<GlobalResponse<List<String>>> getTopKeywords() {
+    log.info("Get top keywords");
+    List<String> topSearches = documentSearchService.getTopSearches();
+    return ResponseEntity.ok().body(
+        GlobalResponse.<List<String>>builder().status(GlobalResponseStatus.SUCCESS)
+            .message("실시간 검색 순위 조회 완료")
+            .data(topSearches)
+            .build());
   }
 }

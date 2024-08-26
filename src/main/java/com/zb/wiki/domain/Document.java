@@ -41,7 +41,7 @@ public class Document {
   private String context;
   @Column(nullable = true)
   private String tag;
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "author_id")
   private Member createdBy;
 
