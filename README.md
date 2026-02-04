@@ -47,7 +47,8 @@
 # ERD
 ![img_4.png](img_4.png)
 # 프로젝트 구조
-![img_1.png](img_1.png)
+<img width="1536" height="864" alt="제목 없음" src="https://github.com/user-attachments/assets/5722ce2a-120f-435d-984d-31571173832e" />
+
 
 <br/>
 
